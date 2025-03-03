@@ -23,13 +23,13 @@ services:
       CLUSTER_HOSTNAME: 'node1'
 
   ollama:
-    image: ollama/ollama:0.5.12
+    build: 
+      dockerfile: docker/ollama.dockerfile
     ports:
       - "11434:11434"
     volumes:
       - ollama_data:/root/.ollama
     environment:
-      #OLLAMA_MODELS: deepseek-r1:8b
       NVIDIA_VISIBLE_DEVICES: all
     deploy:
       resources:
@@ -41,7 +41,30 @@ services:
     restart: unless-stopped
     runtime: nvidia
 
+  postgres:
+    image: postgres:bullseye
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: mydb
+      POSTGRES_USER: gus
+      POSTGRES_PASSWORD: gus
+
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --save 60 1 --loglevel warning
+
 volumes:
   n8n_data:
   weaviate_data:
   ollama_data:
+  postgres_data:
+  redis_data:
