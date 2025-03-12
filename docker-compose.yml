@@ -76,6 +76,17 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --save 60 1 --loglevel warning
+    
+  mongodb:
+    image: mongo:latest
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: gus
+      MONGO_INITDB_ROOT_PASSWORD: gus
 
 volumes:
   n8n_data:
@@ -84,3 +95,4 @@ volumes:
   postgres_data:
   redis_data:
   pgadmin_data:
+  mongodb_data:
