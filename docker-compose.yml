@@ -52,6 +52,26 @@ services:
       POSTGRES_DB: mydb
       POSTGRES_USER: gus
       POSTGRES_PASSWORD: gus
+    command: >
+      postgres
+        -c shared_buffers=8GB
+        -c work_mem=1024MB
+        -c maintenance_work_mem=6GB
+        -c effective_cache_size=20GB
+        -c random_page_cost=1.1
+        -c max_worker_processes=16
+        -c max_parallel_workers=16
+        -c max_parallel_workers_per_gather=8
+        -c checkpoint_completion_target=0.9
+        -c max_wal_size=16GB
+        -c default_statistics_target=200
+    deploy:
+      resources:
+        limits:
+          cpus: '12'  # Ajuste conforme número de cores do seu i9
+          memory: 28G
+        reservations:
+          memory: 16G
 
   pgadmin:
     image: dpage/pgadmin4
