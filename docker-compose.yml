@@ -8,7 +8,7 @@ services:
       - n8n_data:/home/node/.n8n
 
   weaviate:
-    image: semitechnologies/weaviate:1.28.8
+    image: semitechnologies/weaviate
     ports:
       - 8080:8080
       - 50051:50051 
@@ -91,7 +91,7 @@ services:
       - postgres
 
   redis:
-    image: redis:latest
+    image: redis
     restart: unless-stopped
     ports:
       - "6379:6379"
@@ -100,7 +100,7 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     
   mongodb:
-    image: mongo:latest
+    image: mongo
     restart: unless-stopped
     ports:
       - "27017:27017"
