@@ -1,0 +1,40 @@
+[tool.poetry]
+name = "jupyter"
+version = "0.1.0"
+description = "Ambiente jupyter"
+authors = ["Gustavo Michels de Camargo <gustavo.michels.de.camargo@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.12.3"
+numpy = "^1.26.0"
+pandas = "^2.1.0"
+matplotlib = "^3.8.0"
+plotly = "^5.20.0"
+seaborn = "^0.13.0"
+scikit-learn = "^1.5.0"
+scipy = "^1.13.0"
+transformers = "^4.42.0"
+opencv-python = "^4.10.0"
+pillow = "^10.3.0"
+ipywidgets = "^8.1.2"
+tensorflow = { extras = ["and-cuda"], version = "^2.15.0" }
+keras = "^3.2.1"
+keras-cv = "^0.7.2"
+keras-hub = "^0.7.2"
+torch = { version = "^2.2.0", source = "pytorch-cu128" }
+torchvision = { version = "^0.17.0", source = "pytorch-cu128" }
+torchaudio = { version = "^2.2.0", source = "pytorch-cu128" }
+langchain = "^0.3.27"
+langgraph = "^0.5.4"
+openai = "^1.97.1"
+jupyterlab = "^4.2.0"
+ipykernel = "^6.29.4"
+
+[[tool.poetry.source]]
+name = "pytorch-cu128"
+url = "https://download.pytorch.org/whl/cu128"
+priority = "explicit"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
