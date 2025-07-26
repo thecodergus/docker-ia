@@ -397,18 +397,16 @@ services:
     # 1) Knowledge Graph para RAG: Em vez de apenas buscar trechos de texto, um LLM pode consultar o Neo4j para entender as relações entre conceitos (ex: "Qual software foi desenvolvido pela empresa X?"), fornecendo respostas mais contextuais.
     # 2) Análise de Fraude: Modelar as conexões entre pessoas, transações e contas para que um LLM possa identificar e explicar padrões de fraude complexos.
     # 3) Motor de Recomendação Baseado em Grafos: Recomendar produtos ou conteúdo com base em caminhos complexos no grafo (ex: "outras pessoas que compraram X também compraram Y, que é fabricado por Z").
-    image: neo4j:latest
-    ports:
-      - "7474:7474"  # Interface HTTP
-      - "7687:7687"  # Interface Bolt
-    volumes:
-      - neo4j_data:/data
-      - neo4j_logs:/logs
-      - neo4j_conf:/conf
-      - neo4j_plugins:/plugins
-    environment:
-      NEO4J_AUTH: neo4j/admin
+    image: neo4j:community-bullseye
     restart: unless-stopped
+    ports:
+      - "7474:7474"
+      - "7687:7687"
+    environment:
+      - NEO4J_apoc_export_file_enabled=true
+      - NEO4J_apoc_import_file_enabled=true
+      - NEO4J_apoc_import_file_use__neo4j__config=true
+      - NEO4J_PLUGINS=["apoc", "graph-data-science"]
 
   surrealdb:
     # O que é: SurrealDB é um banco de dados "new-sql" multi-modelo, que combina características de bancos de dados relacionais, de documentos, de grafos e vetoriais em uma única plataforma.
