@@ -1,11 +1,19 @@
 services:
   n8n:
+    # O que é: n8n é uma ferramenta de automação de fluxo de trabalho "source-available" e low-code. [citation: 2] Ela permite conectar diferentes aplicativos e serviços para criar automações complexas de forma visual. [citation: 5]
+    # Para que é usado: É utilizado para criar fluxos de trabalho inteligentes, automatizar tarefas repetitivas e integrar LLMs em sistemas mais amplos sem a necessidade de codificação complexa. [citation: 1][citation: 5]
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Curadoria de Conteúdo: Automatizar a coleta de artigos de várias fontes, usar um LLM (via API como Gemini ou Claude) para resumi-los e, em seguida, postá-los em redes sociais ou blogs. [citation: 3]
+    # 2) Processamento de E-mails com IA: Criar um fluxo que lê e-mails recebidos, utiliza um LLM para extrair informações importantes (como faturas ou dados de clientes) e salva esses dados em uma planilha ou banco de dados. [citation: 5]
+    # 3) Agentes de IA Autônomos: Orquestrar múltiplos LLMs e ferramentas para realizar tarefas complexas, como pesquisar um tópico, compilar a informação e gerar um relatório completo, tudo de forma automatizada. [citation: 4][citation: 6]
     image: n8nio/n8n
     restart: unless-stopped
     ports:
       - "5678:5678"
     volumes:
       - n8n_data:/home/node/.n8n
+    env_file:
+      - .env
     environment:
       TZ: America/Sao_Paulo
     depends_on:
@@ -16,11 +24,20 @@ services:
       - mongodb
       - qdrant
       - chromadb
+
   langflow:
+    # O que é: Langflow é uma plataforma open-source e low-code projetada para construir aplicações de IA visualmente, especialmente aquelas que utilizam a biblioteca LangChain. [citation: 11] Ela oferece uma interface de arrastar e soltar para criar fluxos e agentes de IA. [citation: 10][citation: 14]
+    # Para que é usado: É usado para prototipar e desenvolver rapidamente aplicações com LLMs, como chatbots, sistemas RAG (Retrieval-Augmented Generation) e agentes autônomos, conectando LLMs, ferramentas e bancos de dados de forma intuitiva. [citation: 13][citation: 15]
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Criação de Chatbots Complexos: Desenvolver visualmente um chatbot que utiliza um LLM para conversação, uma ferramenta de busca para obter informações em tempo real e um banco de dados vetorial para conhecimento específico. [citation: 13]
+    # 2) Sistema RAG Interativo: Construir um fluxo que permite a um usuário fazer upload de um documento, que é então vetorizado e armazenado, permitindo que um LLM responda a perguntas com base no conteúdo desse documento.
+    # 3) Prototipagem de Agentes de IA: Montar e testar rapidamente agentes que podem usar múltiplas ferramentas (como calculadora, APIs externas) com um LLM como cérebro para tomar decisões e executar tarefas. [citation: 18]
     image: langflowai/langflow:latest
     restart: unless-stopped
     ports:
       - "7860:7860"
+    env_file:
+      - .env
     environment:
       TZ: America/Sao_Paulo
     depends_on:
@@ -33,11 +50,17 @@ services:
       - chromadb
 
   weaviate:
+    # O que é: Weaviate é um banco de dados vetorial open-source de alta performance, projetado para armazenar e buscar objetos de dados junto com seus embeddings vetoriais. [citation: 21][citation: 22] Ele se destaca pela velocidade e escalabilidade em buscas de similaridade. [citation: 26][citation: 27]
+    # Para que é usado: É usado para potencializar aplicações de IA que dependem de busca semântica, como sistemas de recomendação, busca de imagens e, principalmente, aplicações de RAG (Retrieval-Augmented Generation) com LLMs. [citation: 20]
+    # 3 Exemplos Práticos com LLMs:
+    # 1) RAG para Base de Conhecimento: Armazenar embeddings de uma vasta documentação técnica. Um LLM pode, então, consultar o Weaviate para encontrar os trechos mais relevantes e formular respostas precisas. [citation: 25]
+    # 2) Sistema de Recomendação de Conteúdo: Vetorizar artigos, produtos ou vídeos. Quando um usuário interage com um item, o Weaviate encontra os itens mais similares para recomendar a seguir.
+    # 3) Análise de Dados Não Estruturados: Converter logs, reviews de clientes ou outros textos não estruturados em vetores para identificar tendências, anomalias ou insights semânticos em grande escala.
     image: semitechnologies/weaviate
     restart: unless-stopped
     ports:
       - 8080:8080
-      - 50051:50051 
+      - 50051:50051
     volumes:
       - weaviate_data:/var/lib/weaviate
     environment:
@@ -46,7 +69,14 @@ services:
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       DEFAULT_VECTORIZER_MODULE: 'none'
       CLUSTER_HOSTNAME: 'node1'
+
   qdrant:
+    # O que é: Qdrant é um banco de dados e mecanismo de busca vetorial de alta performance, escrito em Rust, focado em fornecer um serviço robusto e pronto para produção para busca por similaridade. [citation: 30]
+    # Para que é usado: Ideal para construir aplicações de IA que necessitam de busca semântica ultra-rápida, sistemas de recomendação, e é especialmente otimizado para aplicações RAG (Retrieval-Augmented Generation) que precisam filtrar resultados por metadados. [citation: 31][citation: 34]
+    # 3 Exemplos Práticos com LLMs:
+    # 1) RAG com Filtros Avançados: Criar um chatbot de suporte que busca em uma base de conhecimento de produtos, mas filtra os resultados por "manuais do usuário" e "versão do produto" antes de enviar o contexto para o LLM responder. [citation: 31]
+    # 2) Matching de Perfis: Em uma plataforma de recrutamento, usar Qdrant para encontrar candidatos (vetorizados a partir de seus currículos) que sejam semanticamente similares a uma descrição de vaga, filtrando por nível de experiência e localização.
+    # 3) Detecção de Anomalias em Tempo Real: Em cibersegurança, vetorizar o tráfego de rede e usar Qdrant para encontrar padrões de comportamento anômalos que sejam similares a ataques conhecidos, com altíssima velocidade.
     image: qdrant/qdrant
     restart: unless-stopped
     ports:
@@ -59,6 +89,12 @@ services:
       QDRANT__SERVICE__GRPC_PORT: 6334
 
   chromadb:
+    # O que é: ChromaDB é um banco de dados vetorial open-source focado em simplicidade e facilidade de uso, ideal para prototipagem rápida e desenvolvimento ágil com LLMs.
+    # Para que é usado: Desenvolvimento rápido de aplicações RAG, prototipagem de sistemas de IA, armazenamento de embeddings com metadata rica e integração simples com frameworks de LLM.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Chatbot Corporativo: Criar base de conhecimento com documentos da empresa para respostas automáticas.
+    # 2) Assistente de Código: Armazenar snippets de código com embeddings para sugestões contextuais durante desenvolvimento.
+    # 3) Sistema de FAQ Inteligente: Converter perguntas frequentes em embeddings para respostas mais precisas.
     image: chromadb/chroma:latest
     ports:
       - "8001:8000"
@@ -70,6 +106,12 @@ services:
     restart: unless-stopped
 
   ollama:
+    # O que é: Ollama é uma ferramenta que simplifica a execução de grandes modelos de linguagem (LLMs) de código aberto, como Llama 3, Mistral e outros, localmente em sua própria máquina.
+    # Para que é usado: Permite que desenvolvedores e entusiastas rodem, gerenciem e interajam com LLMs poderosos de forma privada e offline, sem depender de APIs de terceiros. Ideal para experimentação, desenvolvimento e aplicações que exigem privacidade de dados.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Desenvolvimento Offline de Aplicações RAG: Usar o Ollama para rodar um modelo local que interage com um banco de dados vetorial (como Chroma ou Qdrant) para criar um sistema de perguntas e respostas totalmente privado.
+    # 2) Geração de Texto e Código sem Custo: Utilizar modelos locais via Ollama para tarefas como resumir textos, traduzir idiomas, escrever e-mails ou gerar código, sem incorrer em custos de API.
+    # 3) Fine-tuning e Experimentação: Servir como base para o fine-tuning de modelos de código aberto com dados específicos, permitindo a criação de LLMs especializados para tarefas de nicho.
     image: ollama/ollama
     restart: unless-stopped
     ports:
@@ -88,10 +130,18 @@ services:
     runtime: nvidia
 
   open-webui:
+    # O que é: Open WebUI é uma interface de usuário web, responsiva e self-hosted, projetada para interagir com LLMs, oferecendo uma experiência similar ao ChatGPT, mas com foco em modelos locais via Ollama.
+    # Para que é usado: Fornecer uma interface amigável para conversar com LLMs locais, gerenciar múltiplos modelos, customizar prompts, e utilizar funcionalidades avançadas como RAG para conversar com documentos (PDFs, etc.).
+    # 3 Exemplos Práticos com LLMs:
+    # 1) "ChatGPT" Interno e Privado: Implementar uma interface web para que uma equipe possa usar LLMs rodando localmente (via Ollama) de forma segura, sem que os dados saiam da infraestrutura da empresa.
+    # 2) Análise Interativa de Documentos: Fazer upload de documentos (contratos, artigos de pesquisa) na interface e usar a função RAG integrada para fazer perguntas e extrair informações do texto.
+    # 3) Playground de Modelos e Prompts: Testar e comparar as respostas de diferentes LLMs locais para um mesmo prompt, facilitando a escolha do melhor modelo e o refinamento da engenharia de prompt para uma aplicação.
     image: ghcr.io/open-webui/open-webui
     restart: unless-stopped
     ports:
       - "3000:8080"
+    env_file:
+      - .env
     volumes:
       - open_webui_data:/app/backend/data
     environment:
@@ -99,8 +149,14 @@ services:
       WEBUI_SECRET_KEY: "sua-chave-secreta"
     depends_on:
       - ollama
-    
+
   postgres:
+    # O que é: PostgreSQL é um sistema de gerenciamento de banco de dados relacional de código aberto, conhecido por sua robustez, extensibilidade e conformidade com os padrões SQL.
+    # Para que é usado: Armazenamento de dados estruturados para aplicações em geral. No contexto de IA, pode ser usado para guardar metadados de vetores, logs de interações com LLMs, dados de usuários, ou como backend para ferramentas como n8n e Airflow.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Backend para Agentes de IA: Armazenar o estado de conversas, perfis de usuário e logs de execução de agentes de IA construídos com LangChain ou n8n.
+    # 2) Armazenamento de Metadados para RAG: Enquanto o banco vetorial armazena os embeddings, o Postgres pode guardar os textos originais e metadados associados (fonte do documento, data, etc.), vinculados por um ID.
+    # 3) Cache de Respostas de LLM: Guardar os resultados de prompts comuns para acelerar as respostas e reduzir custos de API, onde a resposta do LLM para um determinado input é armazenada e reutilizada.
     image: postgres:bullseye
     restart: unless-stopped
     ports:
@@ -127,16 +183,22 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '12'  # Ajuste conforme número de cores do seu i9
+          cpus: '12'
           memory: 28G
         reservations:
           memory: 16G
 
   pgadmin:
+    # O que é: pgAdmin é uma plataforma de gerenciamento e administração para bancos de dados PostgreSQL.
+    # Para que é usado: Fornece uma interface gráfica para visualizar, consultar e gerenciar o banco de dados Postgres, facilitando a verificação de dados, execução de queries e administração geral.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Verificar Logs de Conversa: Acessar a tabela onde um agente de IA salva o histórico de interações com usuários para depuração ou análise.
+    # 2) Gerenciar Metadados de Documentos: Inspecionar e editar os metadados dos documentos que foram processados em um pipeline de RAG.
+    # 3) Monitorar o Backend do n8n/Airflow: Checar as tabelas internas usadas pelo n8n ou Airflow para entender o estado das execuções e fluxos de trabalho.
     image: dpage/pgadmin4
     restart: unless-stopped
     ports:
-      - "8081:80"
+      - "9081:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
@@ -146,15 +208,21 @@ services:
       - pgadmin_data:/var/lib/pgadmin
     depends_on:
       - postgres
-      
+
   jupyterlab:
+    # O que é: JupyterLab é um ambiente de desenvolvimento interativo baseado na web para notebooks, código e dados.
+    # Para que é usado: É amplamente utilizado para ciência de dados, machine learning e experimentação com IA. Permite escrever e executar código (Python, R, etc.) em células, visualizar resultados e documentar o processo.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Prototipagem de Pipelines RAG: Experimentar interativamente com o carregamento de documentos, criação de embeddings e consulta a bancos vetoriais, testando diferentes modelos e prompts em um notebook.
+    # 2) Análise de Dados com LLMs: Usar bibliotecas como Pandas e um LLM para analisar um conjunto de dados, gerando insights, visualizações e relatórios de forma assistida.
+    # 3) Fine-tuning de Modelos: Escrever e executar scripts para o processo de fine-tuning de um LLM de código aberto com um dataset específico, monitorando o treinamento no ambiente interativo.
     image: jupyter/tensorflow-notebook:latest
     restart: unless-stopped
     ports:
       - "8888:8888"
     volumes:
       - jupyter_data:/home/jovyan/work
-      - ./notebooks:/home/jovyan/notebooks
+      - ./data/jupyter-notebook:/home/jovyan/notebooks
     environment:
       JUPYTER_ENABLE_LAB: "yes"
       JUPYTER_TOKEN: "seu-token"
@@ -168,6 +236,12 @@ services:
               capabilities: [gpu]
 
   redis:
+    # O que é: Redis é um banco de dados em memória de código aberto, usado como cache, message broker e banco de dados de estrutura de dados.
+    # Para que é usado: Sua principal função em stacks de IA é como um cache de alta velocidade para respostas de LLMs, gerenciamento de filas de tarefas e como backend de memória para frameworks como LangChain ou Airflow.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Cache de Embeddings: Armazenar em cache os embeddings de textos frequentemente acessados para evitar o recálculo custoso.
+    # 2) Memória de Conversação: Manter o histórico recente de conversas de um chatbot em memória para acesso rápido, permitindo que o LLM mantenha o contexto.
+    # 3) Fila de Processamento de Documentos: Em um sistema RAG, usar o Redis para gerenciar uma fila de documentos que precisam ser processados (divididos, vetorizados e armazenados).
     image: redis
     restart: unless-stopped
     ports:
@@ -175,8 +249,14 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --save 60 1 --loglevel warning
-    
+
   mongodb:
+    # O que é: MongoDB é um banco de dados NoSQL orientado a documentos, que armazena dados em estruturas flexíveis, semelhantes a JSON, chamadas BSON.
+    # Para que é usado: É ideal para armazenar dados não estruturados ou semiestruturados, como perfis de usuário, logs de aplicações, e metadados complexos associados a pipelines de IA.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Armazenamento de Histórico de Agentes: Salvar o histórico completo de um agente de IA, incluindo pensamentos, ferramentas usadas e resultados, em um formato de documento flexível.
+    # 2) Banco de Dados de Conteúdo: Guardar o conteúdo original de documentos (artigos, páginas web) que foram vetorizados, permitindo uma recuperação fácil do texto completo.
+    # 3) Perfil de Usuário para Personalização: Manter perfis de usuário detalhados com suas preferências e histórico de interações para que um LLM possa gerar respostas personalizadas.
     image: mongo
     restart: unless-stopped
     ports:
@@ -187,7 +267,165 @@ services:
       MONGO_INITDB_ROOT_USERNAME: gus
       MONGO_INITDB_ROOT_PASSWORD: gus
 
-  
+  minio:
+    # O que é: MinIO é um serviço de armazenamento de objetos de alta performance, compatível com a API do Amazon S3.
+    # Para que é usado: É usado como um "data lake" privado para armazenar grandes volumes de dados não estruturados, como documentos, imagens, áudios e backups de modelos de IA.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Repositório de Documentos para RAG: Armazenar a fonte de verdade (PDFs, DOCs, etc.) que alimenta um sistema de Geração Aumentada por Recuperação.
+    # 2) Armazenamento de Checkpoints de Modelos: Salvar os checkpoints durante o processo de fine-tuning de um LLM, garantindo a recuperação em caso de falhas.
+    # 3) Data Lake para Análise de IA: Centralizar arquivos brutos (logs, imagens) que serão processados por pipelines de IA para extração de insights.
+    image: minio/minio
+    ports:
+      - "9000:9000"   # API
+      - "9001:9001"   # Console
+    volumes:
+      - minio_data:/data
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    restart: unless-stopped
+
+  airflow-webserver:
+    # O que é: Apache Airflow é uma plataforma para programar, orquestrar e monitorar fluxos de trabalho de forma programática. O webserver é a interface de usuário.
+    # Para que é usado: Orquestrar pipelines de dados e ML complexos, como o re-treinamento periódico de modelos ou a ingestão e processamento de dados em lote para sistemas RAG.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Pipeline de Ingestão de Dados para RAG: Criar uma DAG (Directed Acyclic Graph) que, diariamente, busca novos documentos em uma fonte, os divide, gera embeddings e os insere em um banco vetorial.
+    # 2) Fine-tuning Agendado: Orquestrar um pipeline que, semanalmente, coleta novos dados, inicia um processo de fine-tuning de um LLM e, se bem-sucedido, atualiza o modelo em produção.
+    # 3) Geração de Relatórios com IA: Agendar uma tarefa que coleta dados de várias fontes, usa um LLM para gerar um resumo analítico e envia o relatório por e-mail.
+    image: apache/airflow
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://gus:gus@postgres/airflow
+      - AIRFLOW__CORE__FERNET_KEY=
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__API__AUTH_BACKENDS=airflow.api.auth.backend.basic_auth
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/1
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://gus:gus@postgres/airflow
+    volumes:
+      - ./data/airflow/dags:/opt/airflow/dags
+      - ./data/airflow/logs:/opt/airflow/logs
+      - ./data/airflow/plugins:/opt/airflow/plugins
+      - ./data/airflow/config:/opt/airflow/config
+    ports:
+      # O padrão do Airflow é 8080, mas como já está em uso, alterei para 8082
+      - "8082:8080"
+    command: webserver
+    restart: unless-stopped
+
+  airflow-scheduler:
+    # O que é: O scheduler do Airflow é o coração da orquestração. Ele monitora as DAGs e dispara a execução das tarefas quando suas dependências e agendamentos são atendidos.
+    # Para que é usado: Responsável por iniciar e gerenciar os fluxos de trabalho definidos nas DAGs.
+    # 3 Exemplos Práticos com LLMs: (Os exemplos são os mesmos do webserver, pois o scheduler executa o que é definido lá)
+    # 1) Iniciar o pipeline diário de ingestão de dados para RAG.
+    # 2) Disparar o processo semanal de fine-tuning de um modelo.
+    # 3) Executar a tarefa agendada de geração de relatórios com IA.
+    image: apache/airflow:2.7.1
+    depends_on:
+      - airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://gus:gus@postgres/airflow
+      - AIRFLOW__CORE__FERNET_KEY=
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/1
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://gus:gus@postgres/airflow
+    volumes:
+      - ./data/airflow/dags:/opt/airflow/dags
+      - ./data/airflow/logs:/opt/airflow/logs
+      - ./data/airflow/plugins:/opt/airflow/plugins
+      - ./data/airflow/config:/opt/airflow/config
+    command: scheduler
+    restart: unless-stopped
+
+  airflow-worker:
+    # O que é: O worker do Airflow (usando CeleryExecutor) é o processo que efetivamente executa as tarefas definidas nas DAGs.
+    # Para que é usado: Executar as operações de cada tarefa, como rodar um script Python, fazer uma chamada de API, etc. Permite a execução paralela e distribuída de tarefas.
+    # 3 Exemplos Práticos com LLMs: (Os exemplos são as ações concretas das tarefas orquestradas)
+    # 1) Executar o script que baixa um PDF do MinIO e chama a API de um LLM para gerar embeddings.
+    # 2) Rodar o comando de treinamento (fine-tuning) em um container com acesso à GPU.
+    # 3) Conectar-se a um banco de dados, extrair dados e passá-los como contexto para um LLM gerar um texto.
+    image: apache/airflow:2.7.1
+    depends_on:
+      - airflow-scheduler
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=CeleryExecutor
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://gus:gus@postgres/airflow
+      - AIRFLOW__CORE__FERNET_KEY=
+      - AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION=true
+      - AIRFLOW__CORE__LOAD_EXAMPLES=false
+      - AIRFLOW__CELERY__BROKER_URL=redis://redis:6379/1
+      - AIRFLOW__CELERY__RESULT_BACKEND=db+postgresql://gus:gus@postgres/airflow
+    volumes:
+      - ./data/airflow/dags:/opt/airflow/dags
+      - ./data/airflow/logs:/opt/airflow/logs
+      - ./data/airflow/plugins:/opt/airflow/plugins
+      - ./data/airflow/config:/opt/airflow/config
+    command: celery worker
+    restart: unless-stopped
+
+  autogen-studio:
+    # O que é: AutoGen Studio é uma interface de usuário para o framework Microsoft AutoGen, que facilita a criação e o gerenciamento de agentes de IA múltiplos que podem colaborar para resolver tarefas.
+    # Para que é usado: Prototipar e orquestrar conversas entre múltiplos agentes de IA especializados (ex: um agente "escritor" e um agente "crítico") para realizar tarefas complexas que um único LLM teria dificuldade.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Planejamento de Viagem Automatizado: Um agente "planejador" conversa com um agente "pesquisador" (que busca voos e hotéis) e um agente "organizador" para criar um roteiro de viagem completo.
+    # 2) Geração de Código Colaborativa: Um agente "programador" escreve o código, um agente "testador" cria e executa testes, e um agente "revisor" sugere melhorias, tudo de forma autônoma.
+    # 3) Pesquisa e Redação de Artigos: Definir um agente para pesquisar fontes na web, outro para redigir o rascunho do artigo, e um terceiro para revisar e formatar o texto final.
+    build:
+      context: ./
+      dockerfile: ./docker/autogen-studio.dockerfile
+    ports:
+      # A porta padrão do pgAdmin (8081) já estava em uso, alterei a do pgadmin e mantive esta
+      - "8081:8081"
+    env_file:
+      - .env
+    environment:
+      - AUTOGENSTUDIO_DATADIR=/usr/local/autogen-data
+    volumes:
+      - autogen_studio_data:/usr/local/autogen-data
+    restart: unless-stopped
+
+  neo4j:
+    # O que é: Neo4j é o principal banco de dados de grafos, projetado para armazenar, consultar e analisar dados altamente conectados.
+    # Para que é usado: Ideal para modelar relações complexas entre entidades. No contexto de IA, é usado para criar "Knowledge Graphs" que servem como uma memória de longo prazo estruturada para LLMs.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Knowledge Graph para RAG: Em vez de apenas buscar trechos de texto, um LLM pode consultar o Neo4j para entender as relações entre conceitos (ex: "Qual software foi desenvolvido pela empresa X?"), fornecendo respostas mais contextuais.
+    # 2) Análise de Fraude: Modelar as conexões entre pessoas, transações e contas para que um LLM possa identificar e explicar padrões de fraude complexos.
+    # 3) Motor de Recomendação Baseado em Grafos: Recomendar produtos ou conteúdo com base em caminhos complexos no grafo (ex: "outras pessoas que compraram X também compraram Y, que é fabricado por Z").
+    image: neo4j:latest
+    ports:
+      - "7474:7474"  # Interface HTTP
+      - "7687:7687"  # Interface Bolt
+    volumes:
+      - neo4j_data:/data
+      - neo4j_logs:/logs
+      - neo4j_conf:/conf
+      - neo4j_plugins:/plugins
+    environment:
+      NEO4J_AUTH: neo4j/admin
+    restart: unless-stopped
+
+  surrealdb:
+    # O que é: SurrealDB é um banco de dados "new-sql" multi-modelo, que combina características de bancos de dados relacionais, de documentos, de grafos e vetoriais em uma única plataforma.
+    # Para que é usado: Serve como um backend de dados versátil para aplicações de IA, permitindo armazenar documentos, modelar relações de grafos e realizar buscas vetoriais, tudo no mesmo banco de dados.
+    # 3 Exemplos Práticos com LLMs:
+    # 1) Backend Unificado para Aplicação de IA: Armazenar perfis de usuário (documento), suas conexões (grafo) e embeddings de seus posts (vetor) em um único lugar, simplificando a arquitetura.
+    # 2) RAG com Dados Conectados: Realizar uma busca vetorial por documentos relevantes e, em seguida, usar as capacidades de grafo para encontrar entidades relacionadas nesses documentos, enriquecendo o contexto para o LLM.
+    # 3) Análise de Dados em Tempo Real: Ingerir dados de múltiplas fontes e formatos e usar a linguagem de consulta flexível (SurrealQL) para que um LLM possa fazer perguntas complexas sobre os dados em tempo real.
+    image: surrealdb/surrealdb:latest
+    user: root
+    ports:
+      # A porta 8000 já estava em uso pelo chromadb. Alterei para 8003
+      - "8003:8000"
+    volumes:
+      - surrealdb_data:/data
+    command: start --user root --pass root file:/data/database.db
+    restart: unless-stopped
 
 volumes:
   n8n_data:
@@ -201,3 +439,12 @@ volumes:
   open_webui_data:
   jupyter_data:
   qdrant_data:
+  minio_data:
+  grafana_data:
+  autogen_studio_data:
+  neo4j_data:
+  neo4j_logs:
+  neo4j_conf:
+  neo4j_plugins:
+  elasticsearch_data:
+  surrealdb_data:
