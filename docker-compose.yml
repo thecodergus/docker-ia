@@ -14,6 +14,8 @@ services:
       - ollama
       - redis
       - mongodb
+      - qdrant
+      - chromadb
   langflow:
     image: langflowai/langflow:latest
     restart: unless-stopped
@@ -27,13 +29,15 @@ services:
       - ollama
       - redis
       - mongodb
+      - qdrant
+      - chromadb
 
   weaviate:
     image: semitechnologies/weaviate
+    restart: unless-stopped
     ports:
       - 8080:8080
       - 50051:50051 
-    restart: on-failure:0
     volumes:
       - weaviate_data:/var/lib/weaviate
     environment:
@@ -42,9 +46,32 @@ services:
       PERSISTENCE_DATA_PATH: '/var/lib/weaviate'
       DEFAULT_VECTORIZER_MODULE: 'none'
       CLUSTER_HOSTNAME: 'node1'
+  qdrant:
+    image: qdrant/qdrant
+    restart: unless-stopped
+    ports:
+      - "7333:6333"
+      - "7334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+    environment:
+      QDRANT__SERVICE__HTTP_PORT: 6333
+      QDRANT__SERVICE__GRPC_PORT: 6334
+
+  chromadb:
+    image: chromadb/chroma:latest
+    ports:
+      - "8001:8000"
+    volumes:
+      - chroma_data:/chroma/chroma
+    environment:
+      IS_PERSISTENT: TRUE
+      PERSIST_DIRECTORY: /chroma/chroma
+    restart: unless-stopped
 
   ollama:
     image: ollama/ollama
+    restart: unless-stopped
     ports:
       - "11434:11434"
     volumes:
@@ -58,9 +85,21 @@ services:
             - driver: nvidia
               count: 1
               capabilities: [gpu]
-    restart: unless-stopped
     runtime: nvidia
 
+  open-webui:
+    image: ghcr.io/open-webui/open-webui
+    restart: unless-stopped
+    ports:
+      - "3000:8080"
+    volumes:
+      - open_webui_data:/app/backend/data
+    environment:
+      OLLAMA_BASE_URL: "http://ollama:11434"
+      WEBUI_SECRET_KEY: "sua-chave-secreta"
+    depends_on:
+      - ollama
+    
   postgres:
     image: postgres:bullseye
     restart: unless-stopped
@@ -105,10 +144,28 @@ services:
       PGADMIN_CONFIG_SESSION_EXPIRATION_TIME: 43200
     volumes:
       - pgadmin_data:/var/lib/pgadmin
-    links:
-      - postgres:postgres
     depends_on:
       - postgres
+      
+  jupyterlab:
+    image: jupyter/tensorflow-notebook:latest
+    restart: unless-stopped
+    ports:
+      - "8888:8888"
+    volumes:
+      - jupyter_data:/home/jovyan/work
+      - ./notebooks:/home/jovyan/notebooks
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_TOKEN: "seu-token"
+      NVIDIA_VISIBLE_DEVICES: all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
 
   redis:
     image: redis
@@ -130,6 +187,8 @@ services:
       MONGO_INITDB_ROOT_USERNAME: gus
       MONGO_INITDB_ROOT_PASSWORD: gus
 
+  
+
 volumes:
   n8n_data:
   weaviate_data:
@@ -138,3 +197,7 @@ volumes:
   redis_data:
   pgadmin_data:
   mongodb_data:
+  chroma_data:
+  open_webui_data:
+  jupyter_data:
+  qdrant_data:
