@@ -1,12 +1,8 @@
-FROM nvidia/cuda:12.9.1-cudnn-devel-ubuntu24.04
-
-WORKDIR /notebooks
+FROM jupyter/datascience-notebook
 
 ENV TZ=America/Sao_Paulo
 
-RUN apt update && apt install -y python3 python3-pip python-is-python3 python3-venv curl nano build-essential
-
-COPY ./data/jupyter-notebook/pyproject.toml /notebooks/
+WORKDIR /notebooks
 
 # Descomentar quando precisar usar desses 2 (ambos são muito pesados de instalar e vale mais esperar ter uma justificativa para uso)
 #RUN pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu128 --break-system-packages
@@ -35,7 +31,6 @@ COPY ./data/jupyter-notebook/pyproject.toml /notebooks/
 # - mahotas: Processamento de imagens, mais leve e especializado
 # - scikit-image: Processamento e análise avançada de imagens, filtros, transformações morfológicas
 # - polars: DataFrame moderno feito em Rust, muito rápido e com sintaxe parecida com pandas
-# - vaex: Manipulação de grandes datasets tabulares, otimizada para performance
 # - dask: Mesmo API do pandas, mas para dados que não cabem na memória
 # - altair: Visualização declarativa, gera gráficos sofisticados de forma intuitiva
 # - bokeh: Geração de gráficos interativos para web, alternativo ao plotly
@@ -48,6 +43,4 @@ COPY ./data/jupyter-notebook/pyproject.toml /notebooks/
 # - xgboost: Extremamente eficiente para classificação e regressão via boosting
 # - lightgbm: Variante de boosting da Microsoft, muito rápida e baixo consumo de memória
 # - optuna: Otimização automática de hiperparâmetros para tunar pipelines de ML
-RUN pip install jupyterlab numpy pandas matplotlib plotly seaborn scikit-learn scipy transformers langchain langgraph openai requests jax opencv-python pillow ipywidgets beautifulsoup4 scrapy mahotas scikit-image polars vaex dask altair bokeh gensim nltk spacy statsmodels prophet pmdarima xgboost lightgbm optuna --break-system-packages
-
-CMD [ "tail", "-f", "/dev/null" ]
+RUN pip install jupyterlab numpy pandas matplotlib plotly seaborn scikit-learn scipy transformers langchain langgraph openai requests jax opencv-python pillow ipywidgets beautifulsoup4 scrapy mahotas scikit-image polars dask altair bokeh gensim nltk spacy statsmodels prophet pmdarima xgboost lightgbm optuna --break-system-packages
