@@ -223,6 +223,8 @@ services:
     volumes:
       - jupyter_data:/home/jovyan/work
       - ./data/jupyter-notebook:/home/jovyan/notebooks
+    env_file:
+      - .env
     environment:
       JUPYTER_ENABLE_LAB: "yes"
       JUPYTER_TOKEN: "seu-token"
@@ -369,27 +371,6 @@ services:
     command: celery worker
     restart: unless-stopped
 
-  autogen-studio:
-    # O que é: AutoGen Studio é uma interface de usuário para o framework Microsoft AutoGen, que facilita a criação e o gerenciamento de agentes de IA múltiplos que podem colaborar para resolver tarefas.
-    # Para que é usado: Prototipar e orquestrar conversas entre múltiplos agentes de IA especializados (ex: um agente "escritor" e um agente "crítico") para realizar tarefas complexas que um único LLM teria dificuldade.
-    # 3 Exemplos Práticos com LLMs:
-    # 1) Planejamento de Viagem Automatizado: Um agente "planejador" conversa com um agente "pesquisador" (que busca voos e hotéis) e um agente "organizador" para criar um roteiro de viagem completo.
-    # 2) Geração de Código Colaborativa: Um agente "programador" escreve o código, um agente "testador" cria e executa testes, e um agente "revisor" sugere melhorias, tudo de forma autônoma.
-    # 3) Pesquisa e Redação de Artigos: Definir um agente para pesquisar fontes na web, outro para redigir o rascunho do artigo, e um terceiro para revisar e formatar o texto final.
-    build:
-      context: ./
-      dockerfile: ./docker/autogen-studio.dockerfile
-    ports:
-      # A porta padrão do pgAdmin (8081) já estava em uso, alterei a do pgadmin e mantive esta
-      - "8081:8081"
-    env_file:
-      - .env
-    environment:
-      - AUTOGENSTUDIO_DATADIR=/usr/local/autogen-data
-    volumes:
-      - autogen_studio_data:/usr/local/autogen-data
-    restart: unless-stopped
-
   neo4j:
     # O que é: Neo4j é o principal banco de dados de grafos, projetado para armazenar, consultar e analisar dados altamente conectados.
     # Para que é usado: Ideal para modelar relações complexas entre entidades. No contexto de IA, é usado para criar "Knowledge Graphs" que servem como uma memória de longo prazo estruturada para LLMs.
@@ -439,7 +420,6 @@ volumes:
   qdrant_data:
   minio_data:
   grafana_data:
-  autogen_studio_data:
   neo4j_data:
   neo4j_logs:
   neo4j_conf:
