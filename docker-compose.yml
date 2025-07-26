@@ -216,13 +216,14 @@ services:
     # 1) Prototipagem de Pipelines RAG: Experimentar interativamente com o carregamento de documentos, criação de embeddings e consulta a bancos vetoriais, testando diferentes modelos e prompts em um notebook.
     # 2) Análise de Dados com LLMs: Usar bibliotecas como Pandas e um LLM para analisar um conjunto de dados, gerando insights, visualizações e relatórios de forma assistida.
     # 3) Fine-tuning de Modelos: Escrever e executar scripts para o processo de fine-tuning de um LLM de código aberto com um dataset específico, monitorando o treinamento no ambiente interativo.
-    image: jupyter/tensorflow-notebook:latest
+    build: 
+      context: ./
+      dockerfile: ./docker/jupyter.dockerfile
     restart: unless-stopped
     ports:
       - "8888:8888"
     volumes:
-      - jupyter_data:/home/jovyan/work
-      - ./data/jupyter-notebook:/home/jovyan/notebooks
+      - ./data/jupyter-notebook:/notebooks
     env_file:
       - .env
     environment:
@@ -434,7 +435,6 @@ volumes:
   mongodb_data:
   chroma_data:
   open_webui_data:
-  jupyter_data:
   qdrant_data:
   minio_data:
   grafana_data:
