@@ -96,6 +96,7 @@ services:
     # 2) Assistente de Código: Armazenar snippets de código com embeddings para sugestões contextuais durante desenvolvimento.
     # 3) Sistema de FAQ Inteligente: Converter perguntas frequentes em embeddings para respostas mais precisas.
     image: chromadb/chroma:latest
+    restart: unless-stopped
     ports:
       - "8001:8000"
     volumes:
@@ -103,7 +104,6 @@ services:
     environment:
       IS_PERSISTENT: TRUE
       PERSIST_DIRECTORY: /chroma/chroma
-    restart: unless-stopped
 
   ollama:
     # O que é: Ollama é uma ferramenta que simplifica a execução de grandes modelos de linguagem (LLMs) de código aberto, como Llama 3, Mistral e outros, localmente em sua própria máquina.
@@ -277,6 +277,7 @@ services:
     # 2) Armazenamento de Checkpoints de Modelos: Salvar os checkpoints durante o processo de fine-tuning de um LLM, garantindo a recuperação em caso de falhas.
     # 3) Data Lake para Análise de IA: Centralizar arquivos brutos (logs, imagens) que serão processados por pipelines de IA para extração de insights.
     image: minio/minio
+    restart: unless-stopped
     ports:
       - "9000:9000"   # API
       - "9001:9001"   # Console
@@ -286,7 +287,6 @@ services:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
     command: server /data --console-address ":9001"
-    restart: unless-stopped
 
   airflow-webserver:
     # O que é: Apache Airflow é uma plataforma para programar, orquestrar e monitorar fluxos de trabalho de forma programática. O webserver é a interface de usuário.
@@ -296,6 +296,7 @@ services:
     # 2) Fine-tuning Agendado: Orquestrar um pipeline que, semanalmente, coleta novos dados, inicia um processo de fine-tuning de um LLM e, se bem-sucedido, atualiza o modelo em produção.
     # 3) Geração de Relatórios com IA: Agendar uma tarefa que coleta dados de várias fontes, usa um LLM para gerar um resumo analítico e envia o relatório por e-mail.
     image: apache/airflow
+    restart: unless-stopped
     depends_on:
       - postgres
       - redis
@@ -314,10 +315,8 @@ services:
       - ./data/airflow/plugins:/opt/airflow/plugins
       - ./data/airflow/config:/opt/airflow/config
     ports:
-      # O padrão do Airflow é 8080, mas como já está em uso, alterei para 8082
       - "8082:8080"
     command: webserver
-    restart: unless-stopped
 
   airflow-scheduler:
     # O que é: O scheduler do Airflow é o coração da orquestração. Ele monitora as DAGs e dispara a execução das tarefas quando suas dependências e agendamentos são atendidos.
@@ -327,6 +326,7 @@ services:
     # 2) Disparar o processo semanal de fine-tuning de um modelo.
     # 3) Executar a tarefa agendada de geração de relatórios com IA.
     image: apache/airflow:2.7.1
+    restart: unless-stopped
     depends_on:
       - airflow-webserver
     environment:
@@ -343,7 +343,6 @@ services:
       - ./data/airflow/plugins:/opt/airflow/plugins
       - ./data/airflow/config:/opt/airflow/config
     command: scheduler
-    restart: unless-stopped
 
   airflow-worker:
     # O que é: O worker do Airflow (usando CeleryExecutor) é o processo que efetivamente executa as tarefas definidas nas DAGs.
@@ -353,6 +352,7 @@ services:
     # 2) Rodar o comando de treinamento (fine-tuning) em um container com acesso à GPU.
     # 3) Conectar-se a um banco de dados, extrair dados e passá-los como contexto para um LLM gerar um texto.
     image: apache/airflow:2.7.1
+    restart: unless-stopped
     depends_on:
       - airflow-scheduler
     environment:
@@ -369,7 +369,6 @@ services:
       - ./data/airflow/plugins:/opt/airflow/plugins
       - ./data/airflow/config:/opt/airflow/config
     command: celery worker
-    restart: unless-stopped
 
   neo4j:
     # O que é: Neo4j é o principal banco de dados de grafos, projetado para armazenar, consultar e analisar dados altamente conectados.
@@ -397,6 +396,7 @@ services:
     # 2) RAG com Dados Conectados: Realizar uma busca vetorial por documentos relevantes e, em seguida, usar as capacidades de grafo para encontrar entidades relacionadas nesses documentos, enriquecendo o contexto para o LLM.
     # 3) Análise de Dados em Tempo Real: Ingerir dados de múltiplas fontes e formatos e usar a linguagem de consulta flexível (SurrealQL) para que um LLM possa fazer perguntas complexas sobre os dados em tempo real.
     image: surrealdb/surrealdb:latest
+    restart: unless-stopped
     user: root
     ports:
       # A porta 8000 já estava em uso pelo chromadb. Alterei para 8003
@@ -404,7 +404,6 @@ services:
     volumes:
       - surrealdb_data:/data
     command: start --user root --pass root file:/data/database.db
-    restart: unless-stopped
 
 volumes:
   n8n_data:
