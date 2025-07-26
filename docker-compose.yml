@@ -251,6 +251,23 @@ services:
     volumes:
       - redis_data:/data
     command: redis-server --save 60 1 --loglevel warning
+  
+  valkey:
+    image: valkey/valkey:latest
+    restart: unless-stopped
+    ports:
+      - "6380:6370"
+    volumes:
+      - valkey_data:/data
+
+  dragonfly:
+    # Alternativa eficiente ao Redis
+    image: docker.dragonflydb.io/dragonflydb/dragonfly
+    restart: unless-stopped
+    ports:
+      - "6381:6379"
+    volumes:
+      - dragonfly_data:/data
 
   mongodb:
     # O que é: MongoDB é um banco de dados NoSQL orientado a documentos, que armazena dados em estruturas flexíveis, semelhantes a JSON, chamadas BSON.
@@ -411,6 +428,8 @@ volumes:
   ollama_data:
   postgres_data:
   redis_data:
+  valkey_data:
+  dragonfly_data:
   pgadmin_data:
   mongodb_data:
   chroma_data:
